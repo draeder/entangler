@@ -5,14 +5,14 @@ require('./index')
 let gun = new Gun()
 
 // By alias
-gun.entanglement('~@...')
+gun.entangler('~@...')
 
 // By pub key (no prepending '~')
-//gun.entanglement(pubkey)
+//gun.entangler(pubkey)
 
 let passcode = prompt.question('Enter your pin + token: ')
 
-gun.entanglement.request(passcode)
+gun.entangler.request(passcode)
 
 gun.events.once('authorized', (sea)=>{
   gun.user().auth(sea)
@@ -25,5 +25,5 @@ gun.on('auth', ack => {
 gun.events.on('error', err => {
   if(err) console.log(err)
   let passcode = prompt.question('Pleae try again: ')
-  gun.entanglement.request(passcode)
+  gun.entangler.request(passcode)
 })

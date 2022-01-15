@@ -16,22 +16,22 @@ gun.on('auth', async ack => {
   console.log('Authenticated')
 
   // Create an Entanglement instance
-  gun.entanglement(ack.sea, {user: username, secret: password})
+  gun.entangler(ack.sea, {user: username, secret: password})
 
   // Return the whole Entanglement object
-  console.log(await gun.entanglement)
+  console.log(await gun.entangler)
 
   // Return the OTP auth URI QR code image
-  console.log(await gun.entanglement.QR.image())
+  console.log(await gun.entangler.QR.image())
 
   // Print the OTP auth URI QR code to the terminal in ASCII
-  console.log(await gun.entanglement.QR.terminal())
+  console.log(await gun.entangler.QR.terminal())
 
   // Get the current token
-  console.log(await gun.entanglement.token())
+  console.log(await gun.entangler.token())
 
   // Get tokens as they are generated
-  gun.entanglement.tokens(token => {
+  gun.entangler.tokens(token => {
     console.log(token)
   })
 

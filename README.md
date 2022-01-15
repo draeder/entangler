@@ -20,7 +20,7 @@ Entanglement uses Bugoff (an extension built on Bugout) which also uses Gun's SE
 const Gun = require('gun')
 require('./')
 
-let gun = new Gun([{peers:'https://relay.peer.ooo/gun'}])
+let gun = new Gun()
 let user = gun.user()
 
 // create new user or authenticate existing one
@@ -35,22 +35,22 @@ gun.on('auth', async ack => {
   console.log('Authenticated')
 
   // Create an Entanglement instance
-  gun.entanglement(ack.sea, {user: username, secret: password})
+  gun.entangler(ack.sea, {user: username, secret: password})
 
   // Return the whole Entanglement object
-  console.log(await gun.entanglement)
+  console.log(await gun.entangler)
 
   // Return the OTP auth URI QR code image
-  console.log(await gun.entanglement.QR.image())
+  console.log(await gun.entangler.QR.image())
 
   // Print the OTP auth URI QR code to the terminal in ASCII
-  console.log(await gun.entanglement.QR.terminal())
+  console.log(await gun.entangler.QR.terminal())
 
   // Get the current token
-  console.log(await gun.entanglement.token())
+  console.log(await gun.entangler.token())
 
   // Get tokens as they are generated
-  gun.entanglement.tokens(token => {
+  gun.entangler.tokens(token => {
     console.log(token)
   })
 
@@ -63,17 +63,17 @@ const Gun = require('gun')
 const prompt = require('readline-sync')
 require('./index')
 
-let gun = new Gun([{peers:'https://relay.peer.ooo/gun'}])
+let gun = new Gun()
 
 // By alias
-gun.entanglement('~@alias')
+gun.entangler('~@alias')
 
 // By pub key (no prepending '~')
-gun.entanglement(pubkey)
+gun.entangler(pubkey)
 
 let passcode = prompt.question('Enter your pin + token: ')
 
-gun.entanglement.request(passcode)
+gun.entangler.request(passcode)
 
 gun.events.once('authorized', (sea)=>{
   gun.user().auth(sea)
@@ -86,7 +86,7 @@ gun.on('auth', ack => {
 gun.events.on('error', err => {
   if(err) console.log(err)
   let passcode = prompt.question('Pleae try again: ')
-  gun.entanglement.request(passcode)
+  gun.entangler.request(passcode)
 })
 ```
 

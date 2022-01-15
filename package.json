@@ -1,5 +1,5 @@
 {
-  "name": "entanglement",
+  "name": "entangler",
   "version": "0.0.1",
   "description": "Authenticate Gun DB users with a one-time password",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/draeder/entanglement.git"
+    "url": "git+https://github.com/draeder/entangler.git"
   },
   "keywords": [
     "one",
@@ -25,16 +25,16 @@
   "author": "Daniel Raeder",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/draeder/entanglement/issues"
+    "url": "https://github.com/draeder/entangler/issues"
   },
-  "homepage": "https://github.com/draeder/entanglement#readme",
+  "homepage": "https://github.com/draeder/entangler#readme",
   "dependencies": {
     "@otplib/preset-default": "^12.0.1",
     "bugoff": "0.0.7",
     "hi-base32": "^0.5.1",
     "inherits": "^2.0.4",
     "qrcode": "^1.5.0",
-    "qrcode-terminal": "^0.12.0",
     "readline-sync": "^1.4.10"
-  }
+  },
+  "devDependencies": {}
 }
