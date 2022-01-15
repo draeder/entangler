@@ -1,6 +1,6 @@
 {
   "name": "entangler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Authenticate Gun DB users with a one-time password",
   "main": "index.js",
   "scripts": {
@@ -11,9 +11,7 @@
     "url": "git+https://github.com/draeder/entangler.git"
   },
   "keywords": [
-    "one",
-    "time",
-    "password",
+    "one time password",
     "OTP",
     "TOTP",
     "gun",
