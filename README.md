@@ -20,7 +20,7 @@ Entanglement uses Bugoff (an extension built on Bugout) which also uses Gun's SE
 const Gun = require('gun')
 require('./')
 
-let gun = new Gun([{peers:'https://relay.peer.ooo/gun'}])
+let gun = new Gun()
 let user = gun.user()
 
 // create new user or authenticate existing one
@@ -63,7 +63,7 @@ const Gun = require('gun')
 const prompt = require('readline-sync')
 require('./index')
 
-let gun = new Gun([{peers:'https://relay.peer.ooo/gun'}])
+let gun = new Gun()
 
 // By alias
 gun.entanglement('~@alias')
