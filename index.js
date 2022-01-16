@@ -8,11 +8,19 @@ const { SEA } = require('gun')
 const Bugoff = require('bugoff')
 
 Gun.chain.entangler = async function(sea, opts) {
-  EventEmitter.call(this)
+  const emitter = new EventEmitter()
+
+  this.entangler = {
+    attempts: {},
+    on: emitter.on.bind(emitter),
+    once: emitter.on.bind(emitter),
+    emit: emitter.emit.bind(emitter)
+  }
+
   let anon = true
   let instanceSEA
 
-  this.entangler.request = async (passcode) => {
+  this.entangler.verify = async (passcode) => {
     this.entangler.passcode = base64(passcode)
   }
 
@@ -26,20 +34,19 @@ Gun.chain.entangler = async function(sea, opts) {
         return new Promise((resolve, reject) => {this.user(sea).once((data, key) => resolve(key))})
       }
     })
-
     pubkey = await pubkey
     pubkey = pubkey.split('~')[1]    
-
     this.entangler.address = sha(pubkey)
-
     instanceSEA = await SEA.pair()
-
   } else {
     anon = false
   }
 
   if(anon === false) {
     this.entangler = {
+      on: emitter.on.bind(emitter),
+      once: emitter.on.bind(emitter),
+      emit: emitter.emit.bind(emitter),
       address: opts && opts.address || sha(sea.pub),
       issuer: opts && opts.issuer || 'Entanglement Authenticator',
       user: opts && opts.user ? base32.encode(sha(opts.user)) : authenticator.generateSecret(),
@@ -47,14 +54,14 @@ Gun.chain.entangler = async function(sea, opts) {
       pin: opts && opts.pin || '',
       timeout: opts && opts.timeout || 1000 * 60 * 5,
       maxAttempts: opts && opts.maxAttempts || 10,
+      attempts: {},
       period: opts && opts.period || 30,
       digits: opts && opts.digits || 6,
       algorithm: opts && opts.algorithm || 'SHA1',
+      uri: `otpauth://totp/${encodeURI(this.entangler.issuer)}:${this.entangler.user}?secret=${this.entangler.secret}&period=${this.entangler.period||30}&digits=${this.entangler.digits||6}&algorithm=${this.entangler.algorithm||'SHA256'}&issuer=${encodeURI(this.entangler.issuer)}`,
       QR: {}
     }
-  
-    this.entangler.uri = `otpauth://totp/${encodeURI(this.entangler.issuer)}:${this.entangler.user}?secret=${this.entangler.secret}&period=${this.entangler.period||30}&digits=${this.entangler.digits||6}&algorithm=${this.entangler.algorithm||'SHA256'}&issuer=${encodeURI(this.entangler.issuer)}`
-        
+
     this.entangler.QR.terminal = async () => {
       try {
         return await qrcode.toString(this.entangler.uri,{type:'terminal', small: true})
@@ -63,7 +70,6 @@ Gun.chain.entangler = async function(sea, opts) {
         throw new Error(err)
       }
     }
-
     this.entangler.QR.image = async () => {
       try {
         return await qrcode.toDataURL(this.entangler.uri)
@@ -71,43 +77,54 @@ Gun.chain.entangler = async function(sea, opts) {
         throw new Error(err)
       }
     }
-
     instanceSEA = sea
   }
 
   let bugoff = new Bugoff(this.entangler.address)
   bugoff.SEA(instanceSEA)
+
   bugoff.register('accepted', async (address, sea, cb) =>{
-    this.events.emit('authorized', sea)
-  })
-  bugoff.register('rejected', async (address, other, cb) =>{
-    this.events.emit('error', 'Incorrect passcode')
-    if(this.entangler.passcode) bugoff.rpc(address, 'challenge', this.entangler.passcode)
+    this.entangler.emit('authorized', sea)
   })
   
-  this.entangler.attempts = {}
+  bugoff.register('rejected', async (address, err, cb) =>{
+    this.entangler.emit('error', err)
+    if(err.code === 401) bugoff.rpc(address, 'challenge', this.entangler.passcode)
+    else {
+      cb(bugoff.destroy())
+      if(process) process.exit()
+      else debugger
+    }
+  })
+
   bugoff.register('challenge', async (address, verify, cb) =>{
+    if(!this.entangler.attempts[address]) {
+      this.entangler.attempts[address] = {count: 1, first: new Date().getTime()}
+    }
+    
     let t = new Date().getTime() - this.entangler.attempts[address].first
-    if(anon === false && !this.entangler.timeout || anon === false && t < this.entangler.timeout) {
+    
+    if(t >= this.entangler.timeout){
+      bugoff.rpc(address, 'rejected', {code: 408, text: 'Attempts timed out'})
+    } else
+    if(this.entangler.attempts[address].count >= this.entangler.maxAttempts){
+      bugoff.rpc(address, 'rejected', {code: 403, text: 'Maximum number of attempts reached'})
+    } else 
+    if(anon === false){
       let check = base64(verify)
       let token = await this.entangler.token()
       if(check.lastIndexOf(token.length + this.entangler.pin.length === check.length && await this.entangler.token()) >= 0 && check.includes(this.entangler.pin)){
         bugoff.rpc(address, 'accepted', sea)
         this.entangler.passcode = undefined
       } else {
-        bugoff.rpc(address, 'rejected', 'Not authorized!')
+        bugoff.rpc(address, 'rejected', {code: 401, text: 'Incorrect passcode'})
         this.entangler.attempts[address].count++
-        this.events.emit('rejected')
         this.entangler.passcode = undefined
-        if(this.entangler.maxAttempts && this.entangler.maxAttempts === this.entangler.attempts[address].count) {
-          bugoff.destroy()
-        }
       }
-    } else return
+    }
   })
 
   bugoff.on('seen', address => {
-    if(!this.entangler.attempts[address]) this.entangler.attempts[address] = {count: 0, first: new Date().getTime()}
     if(this.entangler.passcode) bugoff.rpc(address, 'challenge', this.entangler.passcode)
   })
 
@@ -139,5 +156,3 @@ Gun.chain.entangler = async function(sea, opts) {
 
   return this
 }
-
-Gun.prototype.events = new EventEmitter()

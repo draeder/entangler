@@ -15,15 +15,18 @@ Entangler uses Bugoff (an extension built on Bugout) which also uses Gun's SEA s
 > npm i entangler
 ```
 
-### Initiator example
+## Examples
+### Initiator Peer Instance
+This is an example of creating and authenticating a Gun user, then creating an Entangler instance. The insance does not necessarily need to be an existing user. Engangler will accept any SEA pair, for example one created with `Gun.SEA.pair()`
+
 ```js
 const Gun = require('gun')
-require('./')
+require('entangler')
 
 let gun = new Gun()
 let user = gun.user()
 
-// create new user or authenticate existing one
+// Create new Gun user or authenticate existing one
 let username = '...' // A secure username
 let password = '.....' // A secure password
 
@@ -34,11 +37,9 @@ user.create(username, password, cb => {
 gun.on('auth', async ack => {
   console.log('Authenticated')
 
-  // Create an entangler instance
+  // Create an entangler instance with an SEA pair
+  // The username and password here does not need, and probably shouldn't, match a Gun user's username and password!
   gun.entangler(ack.sea, {user: username, secret: password})
-
-  // Return the whole entangler object
-  console.log(await gun.entangler)
 
   // Return the OTP auth URI QR code image
   console.log(await gun.entangler.QR.image())
@@ -57,43 +58,81 @@ gun.on('auth', async ack => {
 })
 ```
 
-### Peer example
+### Anonymous Peer
+This is a peer that will be attempting to authenticate to the initiating peer instance with the TOTP passcode.
+
 ```js
 const Gun = require('gun')
 const prompt = require('readline-sync')
-require('./index')
+require('entangler')
 
 let gun = new Gun()
 
-// By alias
+// Look up user by alias
 gun.entangler('~@alias')
 
-// By pub key (no prepending '~')
+// Look up user by pub key (no prepending '~')
 gun.entangler(pubkey)
 
+// Prompt for a passcode
 let passcode = prompt.question('Enter your pin + token: ')
 
-gun.entangler.request(passcode)
+// Verify the passed passcode 
+gun.entangler.verify(passcode)
 
-gun.events.once('authorized', (sea)=>{
+// If the passcode is accepted, the initiator's SEA is returned and can be used to log the user in
+gun.entangler.once('authorized', (sea)=>{
   gun.user().auth(sea)
 })
 
+// The user has been logged in successfully
 gun.on('auth', ack => {
   console.log('Authenticated!!')
 })
 
-gun.events.on('error', err => {
+// If the passcode is rejected, handle the error events
+gun.entangler.on('error', err => {
   if(err) console.log(err)
   let passcode = prompt.question('Pleae try again: ')
-  gun.entangler.request(passcode)
+  gun.entangler.verify(passcode)
 })
 ```
 
 ## API
+### Methods
+#### `gun.entangler(sea, [opts])`
+Creates an Entangler instance for the passed in `Gun.SEA.pair` and optional `opts`.
+
+**Example:** `gun.entangler(ack.sea, {user: username, secret: password})`
+
+#### `gun.entangler.QR.image()`
+Return the OTP auth URI QR code image. This is an asynchronous call and must be used with `await`.
+  
+**Example:** `console.log(await gun.entangler.QR.image())`
+
+#### `gun.entangler.QR.terminal()`
+Print the OTP auth URI QR code to the console/terminal using ascii output. This is an asynchronous call and must be used with `await`.
+  
+**Example:** `console.log(await gun.entangler.QR.terminal())`
+
+#### `gun.entangler.token()`
+Return the current authenticator token. This may be called at any time and will return the token for the current time window. This is an asynchronous call and must be used with `await`.
+
+**Example:** `console.log(await gun.entangler.token())`
+
+#### `gun.entangler.tokens(callback)`
+Return tokens as they are generated. This method will return a new token every 0 and 30 seconds of every minute.
+
+**Example:**
+```js
+  gun.entangler.tokens(token => {
+    console.log(token)
+  })
+```
+
 Entangler's optional `opts` object can be tailored to aid in securing it further.
 
-### `opts`
+### Optional parameters `opts`
 #### `opts.address = [string]` default = Gun.SEA.pair().pub
 `opts.address` is an optional string that may be passed in as an identifier for peers to swarm around and connect to each other. It is converted to a SHA256 hash and announced to the Webtorrent network via Bugoff, which further hashes that hash to SHA256.
 
