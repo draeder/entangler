@@ -113,7 +113,8 @@ Gun.chain.entangler = async function(sea, opts) {
     if(anon === false){
       let check = base64(verify)
       let token = await this.entangler.token()
-      if(check.lastIndexOf(token.length + this.entangler.pin.length === check.length && await this.entangler.token()) >= 0 && check.includes(this.entangler.pin)){
+      let pin = this.entangler.pin.toString()
+      if(check.lastIndexOf(token.length + pin.length === check.length && await this.entangler.token()) >= 0 && check.includes(pin)){
         bugoff.rpc(address, 'accepted', sea)
         this.entangler.passcode = undefined
       } else {

@@ -16,7 +16,7 @@ gun.on('auth', async ack => {
   console.log('Authenticated')
 
   // Create an Entanglement instance
-  gun.entangler(ack.sea, {user: username, secret: password})
+  gun.entangler(ack.sea, {user: username, secret: password, pin: 30210})
 
   // Return the whole Entanglement object
   console.log(await gun.entangler)

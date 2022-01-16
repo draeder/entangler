@@ -156,7 +156,7 @@ Entangler's optional `opts` object can be tailored to aid in securing Entangler 
 #### `opts.address = [string]` default = Gun.SEA.pair().pub
 `opts.address` is an optional string that may be passed in as an identifier for peers to swarm around and connect to each other. It is converted to a SHA256 hash and announced to the Webtorrent network via Bugoff, which further hashes that hash to SHA256. A SHA256 hash of a SHA256 hash!
 
-#### `opts.issuer = [string]` default = 'entangler Authenticator'
+#### `opts.issuer = [string]` default = 'Entangler Authenticator'
 A TOTP issuer is used to describe the TOTP instance to authenticator apps.
 
 #### `opts.user = [string]` default = randomly generated Base32 string
