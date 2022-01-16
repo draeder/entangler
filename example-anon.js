@@ -5,7 +5,7 @@ require('./index')
 let gun = new Gun()
 
 // Look up user by alias
-gun.entangler('~@alias')
+gun.entangler('~@A secure username123')
 
 // Look up user by pub key (no prepending '~')
 //gun.entangler(pubkey)

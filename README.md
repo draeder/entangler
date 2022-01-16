@@ -3,6 +3,8 @@ A time-based one-time password (TOTP) generator and authenticator for Gun DB
 
 Entangler generates a 6 digit passcode every 30 seconds. It generates an `otpauth://` URI and QR codes (both console and image) that can be linked with popular authenticator apps like Microsoft Authenticator, Google Authenticator, LastPass--and many others. But it is not limited to big tech authenticator apps.
 
+![Entangler](assets/entangler.jpg)
+
 ## About
 ### How it works
 Entangler generates a new token every 0 and 30 seconds of of every passing minute. When a peer passes in the correct token for that 30 second window, entangler will respond with the source instance's Gun SEA pair. The returned SEA pair may be used to sync Gun user accounts, reset passwords, or other purposes that might depend on passing SEA data over the network to another peer.
@@ -27,8 +29,8 @@ let gun = new Gun()
 let user = gun.user()
 
 // Create new Gun user or authenticate existing one
-let username = '...' // A secure username
-let password = '.....' // A secure password
+let username = 'A secure username123' // A secure username
+let password = 'A secure password123' // A secure password
 
 user.create(username, password, cb => {
   user.auth(username, password)
@@ -69,7 +71,7 @@ require('entangler')
 let gun = new Gun()
 
 // Look up user by alias
-gun.entangler('~@alias')
+gun.entangler('~@A secure username123')
 
 // Look up user by pub key (no prepending '~')
 gun.entangler(pubkey)

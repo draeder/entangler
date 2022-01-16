@@ -5,8 +5,8 @@ let gun = new Gun()
 let user = gun.user()
 
 // create new user or authenticate existing one
-let username = '...' // A secure username
-let password = '.....' // A secure password
+let username = 'A secure username123' // A secure username
+let password = 'A secure password123' // A secure password
 
 user.create(username, password, cb => {
   user.auth(username, password)
@@ -16,7 +16,7 @@ gun.on('auth', async ack => {
   console.log('Authenticated')
 
   // Create an Entanglement instance
-  gun.entangler(ack.sea, {user: username, secret: password, pin: 30210})
+  gun.entangler(ack.sea, {user: username, secret: password})
 
   // Return the whole Entanglement object
   console.log(await gun.entangler)
