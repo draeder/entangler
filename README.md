@@ -93,12 +93,26 @@ gun.on('auth', ack => {
 // If the passcode is rejected, handle the error events
 gun.entangler.on('error', err => {
   if(err) console.log(err)
-  let passcode = prompt.question('Pleae try again: ')
-  gun.entangler.verify(passcode)
+  if(err.code === 401){
+    let passcode = prompt.question('Pleae try again: ')
+    gun.entangler.verify(passcode)
+  }
 })
 ```
 
 ## API
+### Events
+#### `authorized`
+The peer successfully authenticated the TOTP passcode, so the initiating peer's SEA is passed as a callback to this event.
+
+#### `error`
+There was an error authenticating the TOTP passcode.
+
+**Error codes**
+- - Incorrect passcode: `{code: 401, text: 'Incorrect passcode'}`
+- - Maximum number of attempts reached: `{code: 403, text: 'Maximum number of attempts reached'}`
+- - Attempts timed out: `{code: 408, text: 'Attempts timed out'}`
+
 ### Methods
 #### `gun.entangler(sea, [opts])`
 Creates an Entangler instance for the passed in `Gun.SEA.pair` and optional `opts`.
