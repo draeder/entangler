@@ -99,7 +99,7 @@ Gun.chain.entangler = async function(sea, opts) {
         this.entangler.attempts[address].count++
         this.events.emit('rejected')
         this.entangler.passcode = undefined
-        if(this.entangler.maxAttempt && this.entangler.maxAttempts === this.entangler.attempts[address].count) {
+        if(this.entangler.maxAttempts && this.entangler.maxAttempts === this.entangler.attempts[address].count) {
           bugoff.destroy()
         }
       }
