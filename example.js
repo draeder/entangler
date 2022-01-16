@@ -22,7 +22,7 @@ gun.on('auth', async ack => {
   console.log(await gun.entangler)
 
   // Return the OTP auth URI QR code image
-  console.log(await gun.entangler.QR.image())
+  //console.log(await gun.entangler.QR.image())
 
   // Print the OTP auth URI QR code to the terminal in ASCII
   console.log(await gun.entangler.QR.terminal())

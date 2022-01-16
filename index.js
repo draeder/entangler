@@ -62,6 +62,8 @@ Gun.chain.entangler = async function(sea, opts) {
       QR: {}
     }
 
+    this.entangler.uri = `otpauth://totp/${encodeURI(this.entangler.issuer)}:${this.entangler.user}?secret=${this.entangler.secret}&period=${this.entangler.period||30}&digits=${this.entangler.digits||6}&algorithm=${this.entangler.algorithm||'SHA256'}&issuer=${encodeURI(this.entangler.issuer)}`
+
     this.entangler.QR.terminal = async () => {
       try {
         return await qrcode.toString(this.entangler.uri,{type:'terminal', small: true})
