@@ -1,5 +1,5 @@
 {
-  "name": "entanglement",
+  "name": "entangler",
   "version": "0.1.7",
   "description": "Authenticate Gun DB users with a one-time password",
   "main": "index.js",
