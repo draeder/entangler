@@ -4,7 +4,8 @@
   "description": "Authenticate Gun DB users with a one-time password",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "browserify": "browserify index.js -o browser/entangler.js"
   },
   "repository": {
     "type": "git",
@@ -33,5 +34,7 @@
     "qrcode": "^1.5.0",
     "readline-sync": "^1.4.10"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "browserify": "^17.0.0"
+  }
 }
