@@ -4,7 +4,8 @@
   "description": "Authenticate Gun DB users with a one-time password",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "browserify": "browserify index.js -o browser/browser-bundle.js"
   },
   "repository": {
     "type": "git",
